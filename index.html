@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerunds and Infinitives Revision</title>
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Header Bar -->
+  <header class="sticky top-0 z-20 bg-white/90 dark:bg-slate-800/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-brand-100 dark:bg-slate-700 text-brand-600 dark:text-brand-400 rounded-xl">
+          <i class="fa-solid fa-book-open text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg md:text-xl leading-tight">Gerunds and Infinitives Revision</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Choose the correct answer (A, B, C or D).</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Dark/Light Theme Switcher -->
+        <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center" title="Toggle Theme">
+          <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    
+    <!-- Top Score Summary Banner (Hidden until checked) -->
+    <div id="result-card" class="hidden mb-8 p-6 md:p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl text-center space-y-4 transition-all duration-300">
+      <div id="praise-emoji" class="text-6xl animate-bounce">🎉</div>
+      <div>
+        <h2 id="praise-text" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Absolutely outstanding!</h2>
+        <p id="score-text" class="text-lg font-semibold text-brand-600 dark:text-brand-400 mt-1">You scored 30 out of 30 (100%)</p>
+      </div>
+      <div class="pt-2 max-w-md mx-auto">
+        <div class="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+          <div id="score-bar" class="bg-brand-600 h-full w-0 transition-all duration-1000"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notice Banner -->
+    <div class="mb-8 p-4 bg-brand-50 dark:bg-slate-800/80 border border-brand-100 dark:border-slate-700 rounded-2xl flex items-start gap-3">
+      <i class="fa-solid fa-circle-info text-brand-500 text-lg mt-0.5"></i>
+      <div class="text-sm text-slate-600 dark:text-slate-300">
+        <p class="font-medium text-slate-800 dark:text-slate-100 mb-0.5">Instructions:</p>
+        Select the correct option for each question. Answers will be evaluated once you click <strong>Check Answers</strong> at the bottom.
+      </div>
+    </div>
+
+    <!-- Questions Form -->
+    <form id="quiz-form" onsubmit="event.preventDefault();" class="space-y-6">
+      <div id="questions-list" class="space-y-6">
+        <!-- Questions render dynamically -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <button type="button" id="check-btn" onclick="checkAnswers()" class="w-full sm:w-auto px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 transition-all duration-200 flex items-center justify-center gap-2 active:scale-95">
+          <i class="fa-solid fa-circle-check"></i>
+          Check Answers
+        </button>
+        <button type="button" onclick="resetQuiz()" class="w-full sm:w-auto px-6 py-3.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i>
+          Restart Quiz
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    // Strict praise scale mapped 1:1 with scores from 0 to 30
+    const praiseScaleExact = {
+      0: "😢 Don't give up!",
+      1: "🌱 Keep trying!",
+      2: "💪 Every step counts!",
+      3: "🙂 Keep working on it!",
+      4: "👍 Good effort!",
+      5: "🌿 You're making progress!",
+      6: "😊 You're getting there!",
+      7: "👏 Nice try!",
+      8: "✨ Good work!",
+      9: "😎 Not bad!",
+      10: "🌟 Well done!",
+      11: "💪 Keep it up!",
+      12: "🎯 Good job!",
+      13: "🙌 Nice work!",
+      14: "😊 You're improving!",
+      15: "👏 Solid effort!",
+      16: "🌟 Pretty good!",
+      17: "😃 Good progress!",
+      18: "🎉 Very good!",
+      19: "🔥 Great work!",
+      20: "💯 Impressive!",
+      21: "🤩 Excellent job!",
+      22: "🏅 Really well done!",
+      23: "🚀 Fantastic work!",
+      24: "🌈 Brilliant effort!",
+      25: "🥳 Outstanding!",
+      26: "💎 Superb!",
+      27: "🏆 Exceptional work!",
+      28: "🌟 Absolutely brilliant!",
+      29: "🥇 Nearly perfect!",
+      30: "🎉 Absolutely outstanding!"
+    };
+
+    // New Cleaned Questions Data
+    const rawQuestions = [
+      {
+        id: 1,
+        prompt: "She’s interested in ______ a course in project management.",
+        options: [
+          { key: "A", text: "take" },
+          { key: "B", text: "to take" },
+          { key: "C", text: "taking" },
+          { key: "D", text: "took" }
+        ],
+        key: "C"
+      },
+      {
+        id: 2,
+        prompt: "It’s difficult ______ focused when you’re working in a noisy environment.",
+        options: [
+          { key: "A", text: "staying" },
+          { key: "B", text: "stay" },
+          { key: "C", text: "to stay" },
+          { key: "D", text: "stayed" }
+        ],
+        key: "C"
+      },
+      {
+        id: 3,
+        prompt: "He apologised for ______ the meeting without telling anyone.",
+        options: [
+          { key: "A", text: "leave" },
+          { key: "B", text: "leaving" },
+          { key: "C", text: "to leave" },
+          { key: "D", text: "left" }
+        ],
+        key: "B"
+      },
+      {
+        id: 4,
+        prompt: "______ a new language takes time and patience.",
+        options: [
+          { key: "A", text: "To learning" },
+          { key: "B", text: "Learn" },
+          { key: "C", text: "Learning" },
+          { key: "D", text: "Learned" }
+        ],
+        key: "C"
+      },
+      {
+        id: 5,
+        prompt: "We spent two hours ______ for a solution to the problem.",
+        options: [
+          { key: "A", text: "to look" },
+          { key: "B", text: "looking" },
+          { key: "C", text: "look" },
+          { key: "D", text: "looked" }
+        ],
+        key: "B"
+      },
+      {
+        id: 6,
+        prompt: "My colleague agreed ______ me with the presentation.",
+        options: [
+          { key: "A", text: "helping" },
+          { key: "B", text: "help" },
+          { key: "C", text: "to help" },
+          { key: "D", text: "helped" }
+        ],
+        key: "C"
+      },
+      {
+        id: 7,
+        prompt: "I’m looking forward to ______ you at the conference.",
+        options: [
+          { key: "A", text: "meet" },
+          { key: "B", text: "meeting" },
+          { key: "C", text: "to meet" },
+          { key: "D", text: "met" }
+        ],
+        key: "B"
+      },
+      {
+        id: 8,
+        prompt: "The film is worth ______, even though it’s quite long.",
+        options: [
+          { key: "A", text: "to watch" },
+          { key: "B", text: "watch" },
+          { key: "C", text: "watching" },
+          { key: "D", text: "watched" }
+        ],
+        key: "C"
+      },
+      {
+        id: 9,
+        prompt: "She’s good at ______ difficult problems under pressure.",
+        options: [
+          { key: "A", text: "solve" },
+          { key: "B", text: "to solve" },
+          { key: "C", text: "solving" },
+          { key: "D", text: "solved" }
+        ],
+        key: "C"
+      },
+      {
+        id: 10,
+        prompt: "He decided ______ a short break before continuing the task.",
+        options: [
+          { key: "A", text: "taking" },
+          { key: "B", text: "take" },
+          { key: "C", text: "to take" },
+          { key: "D", text: "took" }
+        ],
+        key: "C"
+      },
+      {
+        id: 11,
+        prompt: "It was kind of you ______ me with my work.",
+        options: [
+          { key: "A", text: "helping" },
+          { key: "B", text: "help" },
+          { key: "C", text: "to help" },
+          { key: "D", text: "helped" }
+        ],
+        key: "C"
+      },
+      {
+        id: 12,
+        prompt: "I’m tired of ______ the same mistakes again and again.",
+        options: [
+          { key: "A", text: "make" },
+          { key: "B", text: "to make" },
+          { key: "C", text: "making" },
+          { key: "D", text: "made" }
+        ],
+        key: "C"
+      },
+      {
+        id: 13,
+        prompt: "They suggested ______ the meeting until Friday.",
+        options: [
+          { key: "A", text: "postpone" },
+          { key: "B", text: "postponing" },
+          { key: "C", text: "to postpone" },
+          { key: "D", text: "postponed" }
+        ],
+        key: "B"
+      },
+      {
+        id: 14,
+        prompt: "______ regularly can help you feel less stressed.",
+        options: [
+          { key: "A", text: "Exercise" },
+          { key: "B", text: "Exercising" },
+          { key: "C", text: "To exercising" },
+          { key: "D", text: "Exercised" }
+        ],
+        key: "B"
+      },
+      {
+        id: 15,
+        prompt: "She’s responsible for ______ new employees to the team.",
+        options: [
+          { key: "A", text: "introduce" },
+          { key: "B", text: "to introduce" },
+          { key: "C", text: "introducing" },
+          { key: "D", text: "introduced" }
+        ],
+        key: "C"
+      },
+      {
+        id: 16,
+        prompt: "He promised ______ me as soon as he arrived.",
+        options: [
+          { key: "A", text: "calling" },
+          { key: "B", text: "call" },
+          { key: "C", text: "to call" },
+          { key: "D", text: "called" }
+        ],
+        key: "C"
+      },
+      {
+        id: 17,
+        prompt: "I’m not used to ______ such long hours.",
+        options: [
+          { key: "A", text: "work" },
+          { key: "B", text: "to work" },
+          { key: "C", text: "working" },
+          { key: "D", text: "worked" }
+        ],
+        key: "C"
+      },
+      {
+        id: 18,
+        prompt: "It took us three hours ______ the report.",
+        options: [
+          { key: "A", text: "finishing" },
+          { key: "B", text: "finish" },
+          { key: "C", text: "to finish" },
+          { key: "D", text: "finished" }
+        ],
+        key: "C"
+      },
+      {
+        id: 19,
+        prompt: "She avoided ______ about the problem because she didn’t want to upset anyone.",
+        options: [
+          { key: "A", text: "talking" },
+          { key: "B", text: "to talk" },
+          { key: "C", text: "talk" },
+          { key: "D", text: "talked" }
+        ],
+        key: "A"
+      },
+      {
+        id: 20,
+        prompt: "It’s important ______ enough sleep before an exam.",
+        options: [
+          { key: "A", text: "getting" },
+          { key: "B", text: "get" },
+          { key: "C", text: "to get" },
+          { key: "D", text: "got" }
+        ],
+        key: "C"
+      },
+      {
+        id: 21,
+        prompt: "He left the office without ______ goodbye to anyone.",
+        options: [
+          { key: "A", text: "say" },
+          { key: "B", text: "saying" },
+          { key: "C", text: "to say" },
+          { key: "D", text: "said" }
+        ],
+        key: "B"
+      },
+      {
+        id: 22,
+        prompt: "I don’t mind ______ late occasionally if the work is interesting.",
+        options: [
+          { key: "A", text: "to work" },
+          { key: "B", text: "work" },
+          { key: "C", text: "working" },
+          { key: "D", text: "worked" }
+        ],
+        key: "C"
+      },
+      {
+        id: 23,
+        prompt: "She offered ______ the new employee around the office.",
+        options: [
+          { key: "A", text: "showing" },
+          { key: "B", text: "show" },
+          { key: "C", text: "to show" },
+          { key: "D", text: "showed" }
+        ],
+        key: "C"
+      },
+      {
+        id: 24,
+        prompt: "I had difficulty ______ the instructions because they were unclear.",
+        options: [
+          { key: "A", text: "understand" },
+          { key: "B", text: "to understand" },
+          { key: "C", text: "understanding" },
+          { key: "D", text: "understood" }
+        ],
+        key: "C"
+      },
+      {
+        id: 25,
+        prompt: "It’s no use ______ about something you can’t change.",
+        options: [
+          { key: "A", text: "to worry" },
+          { key: "B", text: "worry" },
+          { key: "C", text: "worrying" },
+          { key: "D", text: "worried" }
+        ],
+        key: "C"
+      },
+      {
+        id: 26,
+        prompt: "He’s too busy ______ a holiday this month.",
+        options: [
+          { key: "A", text: "taking" },
+          { key: "B", text: "take" },
+          { key: "C", text: "to take" },
+          { key: "D", text: "took" }
+        ],
+        key: "C"
+      },
+      {
+        id: 27,
+        prompt: "They succeeded in ______ the project before the deadline.",
+        options: [
+          { key: "A", text: "complete" },
+          { key: "B", text: "to complete" },
+          { key: "C", text: "completing" },
+          { key: "D", text: "completed" }
+        ],
+        key: "C"
+      },
+      {
+        id: 28,
+        prompt: "I would like ______ more opportunities to practise my English at work.",
+        options: [
+          { key: "A", text: "having" },
+          { key: "B", text: "have" },
+          { key: "C", text: "to have" },
+          { key: "D", text: "had" }
+        ],
+        key: "C"
+      },
+      {
+        id: 29,
+        prompt: "She spends a lot of time ______ videos to improve her pronunciation.",
+        options: [
+          { key: "A", text: "watch" },
+          { key: "B", text: "to watch" },
+          { key: "C", text: "watching" },
+          { key: "D", text: "watched" }
+        ],
+        key: "C"
+      },
+      {
+        id: 30,
+        prompt: "______ in front of a large audience makes some people nervous.",
+        options: [
+          { key: "A", text: "Speak" },
+          { key: "B", text: "Speaking" },
+          { key: "C", text: "To speaking" },
+          { key: "D", text: "Spoke" }
+        ],
+        key: "B"
+      }
+    ];
+
+    let currentQuestions = [];
+
+    // Shuffle Utility
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Theme Switcher Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400 text-lg' : 'fa-solid fa-moon text-lg';
+    });
+
+    // Render Quiz Questions
+    function renderQuiz() {
+      currentQuestions = shuffleArray(rawQuestions);
+      const container = document.getElementById('questions-list');
+      container.innerHTML = '';
+
+      currentQuestions.forEach((q, qIndex) => {
+        const card = document.createElement('div');
+        card.className = 'p-5 md:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-md transition-shadow';
+        card.id = `q-card-${qIndex}`;
+
+        let optionsHTML = '';
+        q.options.forEach(opt => {
+          const inputId = `q_${qIndex}_opt_${opt.key}`;
+          const inputName = `question_${qIndex}`;
+
+          optionsHTML += `
+            <label for="${inputId}" id="label_${inputId}" class="option-label flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+              <input type="radio" 
+                     id="${inputId}" 
+                     name="${inputName}" 
+                     value="${opt.key}" 
+                     class="mt-1 w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-700">
+              <span class="text-slate-700 dark:text-slate-200 text-sm md:text-base leading-relaxed">
+                <strong class="font-semibold mr-1">${opt.key})</strong> ${opt.text}
+              </span>
+            </label>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 bg-brand-100 dark:bg-slate-700 text-brand-700 dark:text-brand-300 rounded-lg text-sm font-bold flex items-center justify-center">
+                ${qIndex + 1}
+              </span>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                Single Choice
+              </span>
+            </div>
+            <div id="q-status-${qIndex}" class="hidden text-sm font-semibold flex items-center gap-1.5"></div>
+          </div>
+          <p class="text-slate-800 dark:text-slate-100 font-medium text-base md:text-lg mb-4">
+            ${q.prompt}
+          </p>
+          <div class="space-y-2.5">
+            ${optionsHTML}
+          </div>
+          <div id="q-explanation-${qIndex}" class="hidden mt-4 p-3 bg-slate-100 dark:bg-slate-750 rounded-xl text-xs md:text-sm text-slate-600 dark:text-slate-300"></div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Check Answers Logic
+    function checkAnswers() {
+      let score = 0;
+
+      currentQuestions.forEach((q, qIndex) => {
+        const inputName = `question_${qIndex}`;
+        const selectedInput = document.querySelector(`input[name="${inputName}"]:checked`);
+        const selectedKey = selectedInput ? selectedInput.value : null;
+
+        const isCorrect = selectedKey === q.key;
+
+        if (isCorrect) {
+          score++;
+        }
+
+        // Status Badge Updating
+        const statusEl = document.getElementById(`q-status-${qIndex}`);
+        statusEl.classList.remove('hidden', 'text-emerald-600', 'text-red-500', 'dark:text-emerald-400', 'dark:text-red-400');
+
+        if (isCorrect) {
+          statusEl.className = 'text-sm font-semibold flex items-center gap-1 text-emerald-600 dark:text-emerald-400';
+          statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct';
+        } else {
+          statusEl.className = 'text-sm font-semibold flex items-center gap-1 text-red-500 dark:text-red-400';
+          statusEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Incorrect';
+        }
+
+        // Option styling and highlight
+        q.options.forEach(opt => {
+          const inputId = `q_${qIndex}_opt_${opt.key}`;
+          const inputEl = document.getElementById(inputId);
+          const labelEl = document.getElementById(`label_${inputId}`);
+          if (!labelEl) return;
+
+          // Disable inputs after checking
+          if (inputEl) inputEl.disabled = true;
+          labelEl.classList.add('cursor-not-allowed', 'opacity-90');
+
+          labelEl.classList.remove('bg-emerald-50', 'border-emerald-500', 'dark:bg-emerald-950/40', 'bg-red-50', 'border-red-500', 'dark:bg-red-950/40');
+
+          const isCorrectOption = opt.key === q.key;
+          const isSelectedOption = opt.key === selectedKey;
+
+          if (isCorrectOption) {
+            labelEl.classList.add('bg-emerald-50', 'border-emerald-500', 'dark:bg-emerald-950/40');
+          } else if (isSelectedOption) {
+            labelEl.classList.add('bg-red-50', 'border-red-500', 'dark:bg-red-950/40');
+          }
+        });
+
+        // Explanation text for missed or incorrect questions
+        const explanationEl = document.getElementById(`q-explanation-${qIndex}`);
+        const correctOpt = q.options.find(o => o.key === q.key);
+        if (!isCorrect) {
+          explanationEl.classList.remove('hidden');
+          explanationEl.innerHTML = `<span class="font-semibold text-slate-700 dark:text-slate-200">Correct Answer:</span> <strong class="text-emerald-600 dark:text-emerald-400">${q.key}) ${correctOpt.text}</strong>`;
+        } else {
+          explanationEl.classList.add('hidden');
+        }
+      });
+
+      displayResults(score);
+    }
+
+    // Display Results with exact 31-tier praise scale
+    function displayResults(score) {
+      const total = currentQuestions.length; // 30
+      const fullText = praiseScaleExact[score] || "👍 Good effort!";
+      
+      const spaceIndex = fullText.indexOf(' ');
+      const emoji = fullText.substring(0, spaceIndex);
+      const textPhrase = fullText.substring(spaceIndex + 1);
+
+      const resultCard = document.getElementById('result-card');
+      document.getElementById('praise-emoji').textContent = emoji;
+      document.getElementById('praise-text').textContent = textPhrase;
+      
+      const percentage = Math.round((score / total) * 100);
+      document.getElementById('score-text').textContent = `You scored ${score} out of ${total} (${percentage}%)`;
+
+      const scoreBar = document.getElementById('score-bar');
+      resultCard.classList.remove('hidden');
+
+      setTimeout(() => {
+        scoreBar.style.width = `${percentage}%`;
+      }, 100);
+
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetQuiz() {
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('score-bar').style.width = '0%';
+      renderQuiz();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.onload = function() {
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
